@@ -1,0 +1,9 @@
+Input:
+Correct_Label	File1	File2	File3	...
+
+Output:
+LABEL_Features file
+
+Example:
+
+./features Downtempo ../../music/Downtempo/MAR- ../../music/Rap/MAR-

@@ -1,0 +1,1 @@
+ls *_weight | ./a,out ../testing/Downtempo_features

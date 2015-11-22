@@ -1,0 +1,12 @@
+
+./features Downtempo ../../music/Downtempo/MARSYAS_EMPTYdown.arff ../../music/Alternative/MARSYAS_EMPTYalt.arff ../../music/Rock/MARSYAS_EMPTYrock.arff ../../music/Rap/MARSYAS_EMPTYrap.arff ../../music/Math/MARSYAS_EMPTYmath.arff ../../music/Classical/MARSYAS_EMPTYclass.arff;
+
+./features Rock ../../music/Downtempo/MARSYAS_EMPTYdown.arff ../../music/Alternative/MARSYAS_EMPTYalt.arff ../../music/Rock/MARSYAS_EMPTYrock.arff ../../music/Rap/MARSYAS_EMPTYrap.arff ../../music/Math/MARSYAS_EMPTYmath.arff ../../music/Classical/MARSYAS_EMPTYclass.arff;
+
+./features Alternative ../../music/Downtempo/MARSYAS_EMPTYdown.arff ../../music/Alternative/MARSYAS_EMPTYalt.arff ../../music/Rock/MARSYAS_EMPTYrock.arff ../../music/Rap/MARSYAS_EMPTYrap.arff ../../music/Math/MARSYAS_EMPTYmath.arff ../../music/Classical/MARSYAS_EMPTYclass.arff;
+
+./features Rap ../../music/Downtempo/MARSYAS_EMPTYdown.arff ../../music/Alternative/MARSYAS_EMPTYalt.arff ../../music/Rock/MARSYAS_EMPTYrock.arff ../../music/Rap/MARSYAS_EMPTYrap.arff ../../music/Math/MARSYAS_EMPTYmath.arff ../../music/Classical/MARSYAS_EMPTYclass.arff;
+
+./features Math ../../music/Downtempo/MARSYAS_EMPTYdown.arff ../../music/Alternative/MARSYAS_EMPTYalt.arff ../../music/Rock/MARSYAS_EMPTYrock.arff ../../music/Rap/MARSYAS_EMPTYrap.arff ../../music/Math/MARSYAS_EMPTYmath.arff ../../music/Classical/MARSYAS_EMPTYclass.arff;
+
+./features Classical ../../music/Downtempo/MARSYAS_EMPTYdown.arff ../../music/Alternative/MARSYAS_EMPTYalt.arff ../../music/Rock/MARSYAS_EMPTYrock.arff ../../music/Rap/MARSYAS_EMPTYrap.arff ../../music/Math/MARSYAS_EMPTYmath.arff ../../music/Classical/MARSYAS_EMPTYclass.arff

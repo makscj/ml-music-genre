@@ -1,0 +1,11 @@
+Input:
+Genre	[Weight_File]
+
+Output
+GENRE_WEIGHT file
+
+NOTE:
+Reads all examples from input stream
+
+Example:
+cat Downtempo_Features | perceptron Downtempo

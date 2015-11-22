@@ -1,0 +1,6 @@
+cat ../io/Downtempo_Features | ./perceptron Downtempo;
+cat ../io/Rock_Features | ./perceptron Rock;
+cat ../io/Alternative_Features | ./perceptron Alternative;
+cat ../io/Classical_Features | ./perceptron Classical;
+cat ../io/Rap_Features | ./perceptron Rap;
+cat ../io/Math_Features | ./perceptron Math;

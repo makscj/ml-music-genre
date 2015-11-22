@@ -1,0 +1,12 @@
+Progress:
+Created a function that converts all features into one easy to read perceptron feature file.
+
+Created Perceptron_v1
+
+
+Todo:
+Make perceptron be able to read in weight files to continue training.
+
+Experiment with different features
+
+Create Latex Write-up (DUE THURSDAY)
