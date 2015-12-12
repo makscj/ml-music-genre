@@ -1,6 +1,7 @@
 package ml;
 
 import ml.Vector;
+
 import java.util.ArrayList;
 
 public class SVM {
@@ -23,7 +24,7 @@ public class SVM {
 		
 		for(int epoch = 0; epoch  < epochT; epoch++)
 		{
-			examples = shuffle(examples);
+			examples = Util.shuffle(examples);
 			for(int i = 0; i < examples.size(); i++)
 			{
 				Vector x = examples.get(i);
@@ -46,56 +47,78 @@ public class SVM {
 		for(String label : labels)
 		{
 			classifiers.add(SGD(data, rate, C, epoch, label));
-		}
-		
-		
+		}		
 
 		return classifiers;
 	}
 	
-	/**
-	 * Winner takes all prediction for One-vs-All training.
-	 * @param classifier - The classifiers to compare to
-	 * @param labels - The possible labels that each classifier can take
-	 * @param example - The example to predict
-	 * @return - The correct label for the prediction. The assumption is that the indices for labels and classifiers match.
-	 */
-	public static String predictLabel(ArrayList<Vector> classifier, String[] labels, Vector example)
-	{
-		double max = classifier.get(0).transpose(example);;
-		int argmax = 0;
-		
-		for(int i = 0; i < classifier.size(); i++)
-		{
-			double value = classifier.get(i).transpose(example);
-			if(value > max)
-			{
-				max = value;
-				argmax = i;
-			}
-		}
-		
-		return labels[argmax];
-	}
+
+
 	
 	/**
-	 * Shuffles a given ArrayList of vectors. Used for cross validation.
-	 * @param array
+	 * Perform cross validation on a data set
+	 * @param data - The data set to test
+	 * @param fold - The number of folds
+	 * @param C - The C values to test
+	 * @param Rho - The rho values to test
+	 * @param verbose - If set to true, will print out all the accuracies for hyperparameters.
+	 * @param label - The label for which to test crossvalidation on.
 	 * @return
 	 */
-	private static ArrayList<Vector> shuffle(ArrayList<Vector> array)
+	public static double[] crossValidation(ArrayList<Vector> data, int fold, boolean verbose, String label, double[] C, double[] Rho)
 	{
-		int index = array.size()-1;
-		while(index>1)
+		
+		ArrayList<ArrayList<Vector>> cross = Util.createCrossValidationSet(data, fold);
+		
+		int epoch = 10;
+		
+		//Max Accuracy   Best Rho         Best C
+		double maxA = 0; double maxP = 0; double maxC = 0;
+		
+		//Loop through all the C hyperparameters
+		for(double c : C)
 		{
-			int randomIndex = (int)(Math.random()*index);
-			Vector temp = array.get(index);
-			array.set(index--,array.get(randomIndex));
-			array.set(randomIndex,temp);
+			//Loop through all the rho hyperparameters
+			for(double rho : Rho)
+			{
+				double accuracy = 0;
+				
+				//Looping through sets chosen to stay out
+				for(int i = 0; i < fold; i++)
+				{					
+					
+					ArrayList<Vector> trainSet = new ArrayList<Vector>();
+					//Collect the training sets
+					for(int j = 0; j < fold; j++)
+					{
+						if(i == j) continue;//Skip the "testing set"
+						trainSet.addAll(cross.get(j));
+					}
+					//Compute the weight vector for the training sets
+					Vector w = SVM.SGD(trainSet, rho, c, epoch, label);
+					//Compute accuracy of the testing set on the training sets
+					accuracy += Util.collectAccuracy(cross.get(i), w, label);			
+				}
+				//Get the statistical accuracy
+				accuracy /= fold;
+				
+				//Keep track of the best hyperparameters
+				if(accuracy > maxA)
+				{
+					maxA = accuracy;
+					maxC = c;
+					maxP = rho;
+				}
+				if(verbose)
+					System.out.println(accuracy + "\t" + c + "\t" + rho);
+			}
 		}
-		return array;
+		if(verbose)
+			System.out.println("--- BEST C: " + maxC + "\tBEST RHO: " + maxP + "\t WITH ACCURACY: " + maxA);
+		//Return the best hyperparameters.
+		double[] ret = {maxC, maxP};
+		return ret;
 	}
-
 	
 }
 

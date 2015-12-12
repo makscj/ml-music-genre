@@ -13,34 +13,46 @@ public class Test {
 
 	public static void main(String[] args) 
 	{
-		String[] genres4 = {"blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"};
-		String[] genres = {"classical","jazz","metal","pop"};
+		String[] genres = {"blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"};
+		String[] genres4 = {"classical","jazz","metal","pop"};
 
 		ArrayList<ArrayList<Vector>> data = new ArrayList<ArrayList<Vector>>();
 		
 		try {
 			for(String genre : genres)
 			{
-				data.add(readData(genre, true));
+				data.add(Util.readData(genre, true));
 			}
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		ArrayList<Vector> testing = testSet(data); 
+		ArrayList<Vector> testing = Util.testSet(data); 
 		
-		ArrayList<Vector> all = new ArrayList<Vector>();
+		ArrayList<Vector> training = new ArrayList<Vector>();
 		for(ArrayList<Vector> list : data)
 		{
-			all.addAll(list);
+			training.addAll(list);
 		}
 		
 		boolean crossVal = false;
 		
-		ArrayList<Vector> allT = applyProductTransform(all);
-		ArrayList<Vector> testingT = applyProductTransform(testing);
+		//ArrayList<Vector> allT = Util.applyProductTransform(all);
+		//ArrayList<Vector> testingT = Util.applyProductTransform(testing);
 		
+		runSVM(genres, crossVal, training, testing);
+		
+		
+
+		
+		
+	}
+	
+	
+
+	private static void runSVM(String[] genres, boolean crossVal, ArrayList<Vector> training, ArrayList<Vector> testing)
+	{
 		if(crossVal)
 		{
 			double[] C = {0.001, 0.01, 0.1, 1, 10};
@@ -50,7 +62,7 @@ public class Test {
 			
 			for(int i = 0; i < genres.length; i++)
 			{
-				best[i] = CrossValidation.crossValidation(allT, 10, C, Rho, true, genres[i]);
+				best[i] = SVM.crossValidation(training, 10, false, genres[i], C, Rho);
 			}
 			
 			for(int i = 0; i < genres.length; i++)
@@ -67,93 +79,66 @@ public class Test {
 			
 			for(String genre : genres)
 			{
-				Vector weight = SVM.SGD(allT, r, c, 20, genre);
+				Vector weight = SVM.SGD(training, r, c, 20, genre);
 				classifiers.add(weight);
-				System.out.println(genre + " " + CrossValidation.collectAccuracy(testingT, weight, genre));
+				System.out.println(genre + " " + Util.collectAccuracy(testing, weight, genre));
 			}
 			
 			
-			for(Vector example : testingT)
+			for(Vector example : testing)
 			{
-				String label = SVM.predictLabel(classifiers, genres, example);
+				String label = Util.predictLabel(classifiers, genres, example);
 				System.out.println("Actual: " + example.getStringLabel() + "\tPredict: " + label);
 			}
 		}
 		
-
-		
-		
-	}
-
-	private static ArrayList<Vector> applyProductTransform(ArrayList<Vector> data)
-	{
-		int dimension = data.get(0).getDimension();
-		ArrayList<Vector> transformations = new ArrayList<Vector>();
-		for(Vector vector : data)
-		{
-			int counter = 0;
-			double[] transform = new double[(dimension*(dimension-1))/2 + dimension + 1];
-			for(int i = 0; i < dimension; i++)
-			{
-				for(int j = i; j < dimension; j++)
-				{
-					transform[counter++] = vector.get(i)*vector.get(j);
-				}
-			}
-			transform[transform.length-1] = vector.getLabel();
-			transformations.add(new Vector(transform, vector.getStringLabel()));
-		}
-				
-		return transformations;
 	}
 	
-	public static ArrayList<Vector> testSet(ArrayList<ArrayList<Vector>> data)
+	private static void runLogisticRegression(String[] genres, boolean crossVal, ArrayList<Vector> training, ArrayList<Vector> testing)
 	{
-		Random rng = new Random();
-		ArrayList<Vector> ret = new ArrayList<Vector>();
-		for(ArrayList<Vector> list : data)
+		if(crossVal)
 		{
-			for(int i = 0; i < 10; i++)
+			double[] Sigma = {10, 20, 50, 100, 200, 400};
+			double[] Rho = {0.0001, 0.001, 0.01, 0.1, 1};
+			
+			double[][] best = new double[genres.length][2];
+			
+			for(int i = 0; i < genres.length; i++)
 			{
-				int j = rng.nextInt(list.size());
-				Vector example = list.remove(j);
-				ret.add(example);
+				best[i] = LogisticRegression.crossValidation(training, 10, false, genres[i], Sigma, Rho);
+			}
+			
+			for(int i = 0; i < genres.length; i++)
+			{
+				System.out.println(genres[i]+ ": " + best[i][0] + " " + best[i][1]);
 			}
 		}
-		
-		return ret;
+		else
+		{
+			double s = 1;
+			double r = 0.1;
+			
+			ArrayList<Vector> classifiers = new ArrayList<Vector>();
+			
+			for(String genre : genres)
+			{
+				Vector weight = LogisticRegression.SGD(training, r, s, 20, genre);
+				classifiers.add(weight);
+				System.out.println(genre + " " + Util.collectAccuracy(testing, weight, genre));
+			}
+			
+			
+			for(Vector example : testing)
+			{
+				String label = Util.predictLabel(classifiers, genres, example);
+				System.out.println("Actual: " + example.getStringLabel() + "\tPredict: " + label);
+			}
+		}
 	}
 	
-	public static ArrayList<Vector> readData(String genre, boolean simple) throws IOException
+	private static void runPerceptron()
 	{
-		ArrayList<String> labels = new ArrayList<String>();
-		ArrayList<Vector> data = new ArrayList<Vector>();
 		
-		Pattern p = Pattern.compile("(@attribute|@relation|@data|%|^$)");
-
-		
-		BufferedReader br = new BufferedReader(new FileReader("./features/"+genre+".arff"));
-		String line = br.readLine();
-		while(line != null)
-		{
-			String[] split = line.split(" ");
-			Matcher m = p.matcher(split[0]);
-			if(m.find() || split[0].equals(""))
-			{
-				line = br.readLine();
-				continue;
-			}
-			String[] input = split[0].split(",");
-			double[] vector = new double[input.length-1];
-			for(int i = 0; i < input.length-1; i++)
-				vector[i] = Double.parseDouble(input[i]);
-			Vector v = new Vector(vector, genre);
-			data.add(v);
-			line = br.readLine();
-		}
-		br.close();	
-				
-		return data;
 	}
 	
 }

@@ -86,6 +86,10 @@ public class Vector {
 	 */
 	public int getLabel(String compare)
 	{
+		if(compare == null)
+		{
+			return this.label;
+		}
 		if(compare.equals(sLabel))
 			return 1;
 		else
