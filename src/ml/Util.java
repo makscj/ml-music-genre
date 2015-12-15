@@ -86,7 +86,7 @@ public class Util {
 	 */
 	public static String predictLabel(ArrayList<Vector> classifier, String[] labels, Vector example)
 	{
-		double max = classifier.get(0).transpose(example);;
+		double max = Math.log(0);
 		int argmax = 0;
 		
 		for(int i = 0; i < classifier.size(); i++)
@@ -146,6 +146,31 @@ public class Util {
 		}
 		
 		return ret;
+	}
+	
+	public static ArrayList<Vector> reduceSpace(ArrayList<Vector> data, ArrayList<Integer> ignore)
+	{
+		ArrayList<Vector> retData = new ArrayList<Vector>();
+		
+		for(Vector v : data)
+		{
+			double[] holder = new double[v.getDimension() - ignore.size()];
+			int entry = 0;
+			for(int i = 0; i < v.getDimension(); i++)
+			{
+				if(!ignore.contains(i))
+				{
+					continue;
+				}
+				else
+				{
+					holder[entry++] = v.get(i);
+				}
+			}
+			retData.add(new Vector(holder, v.getStringLabel()));
+		}
+		
+		return retData;
 	}
 	
 	public static ArrayList<Vector> readData(String genre, boolean simple) throws IOException

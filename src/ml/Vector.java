@@ -17,6 +17,33 @@ import java.util.Arrays;
  */
 public class Vector {
 	
+	public static void main(String[] args)
+	{
+		Vector x = new Vector(new double[] {1,2,3}, 1);
+		Vector w = new Vector(new double[] {1,1,1}, 1);		
+		double y = x.getLabel();
+		
+		
+		Vector compare = w.add(x.scale(-y/(1 + Math.exp(y*w.transpose(x)))).add(w.scale(2.0/Math.pow(400,2))));
+		
+		double trans = w.transpose(x);
+		trans *= y;
+		double bigTerm = -y/(Math.exp(trans) + 1);
+		//bigTerm *= -y;
+
+		double[] toVec = new double[x.getDimension()];
+
+		for(int i = 0; i < x.getDimension(); i++)
+		{
+			toVec[i] = bigTerm*x.get(i) + (2/Math.pow(400, 2))*w.get(i);
+		}
+
+		Vector correct = new Vector(toVec, 0);
+		
+		System.out.println(correct);
+		System.out.println(compare);
+	}
+	
 	/**
 	 * Stores the values of the vector
 	 */
@@ -287,6 +314,13 @@ public class Vector {
 	
 	public String toString()
 	{
+		if(dimension == 1)
+		{
+			String res =  "{"+data[0]+"}";
+			String label = sLabel;
+			if(sLabel == null) label = ""+this.getLabel();
+			return res + ":"+label;
+		}
 		String res = "{"+data[0];
 		for(int i = 1; i < dimension+1; i++)
 		{

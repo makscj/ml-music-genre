@@ -17,8 +17,8 @@ import javax.swing.JPanel;
 
 public class parent extends JPanel{   
 	
-	static int width = 1000;
-	static int height = 1000;
+	static int width = 500;
+	static int height = 500;
 	static Graphics gr;
 	
 	public void paintComponent (Graphics g)     
