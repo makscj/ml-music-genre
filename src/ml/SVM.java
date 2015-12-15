@@ -30,7 +30,7 @@ public class SVM {
 				Vector x = examples.get(i);
 				rate = rate0/(1 + (rate0*t)/C);
 				Vector E = w;
-				if(x.getLabel(label)*LinearKernel(w,x) <= 1)
+				if(x.getLabel(label)*LinearKernel(w,x,1) <= 1)
 					E = w.add(x.scale(-1*C*x.getLabel(label)));
 				w = w.add(E.scale(-1*rate));
 				t++;				
@@ -49,9 +49,9 @@ public class SVM {
 		return Math.exp(-sum/c);
 	}
 	
-	public static double LinearKernel(Vector w, Vector x)
+	public static double LinearKernel(Vector w, Vector x, int power)
 	{
-		return Math.pow(w.transpose(x),5);
+		return Math.pow(w.transpose(x),power);
 	}
 	
 	
