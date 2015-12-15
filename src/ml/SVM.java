@@ -30,13 +30,28 @@ public class SVM {
 				Vector x = examples.get(i);
 				rate = rate0/(1 + (rate0*t)/C);
 				Vector E = w;
-				if(x.getLabel(label)*w.transpose(x) <= 1)
+				if(x.getLabel(label)*LinearKernel(w,x) <= 1)
 					E = w.add(x.scale(-1*C*x.getLabel(label)));
 				w = w.add(E.scale(-1*rate));
 				t++;				
 			}
 		}
 		return w;
+	}
+	
+	public static double RBFKernel(Vector w, Vector x, double c)
+	{
+		double sum = 0;
+		for(int i = 0; i < x.getDimension(); i++)
+		{
+			sum += Math.pow(w.get(i) - x.get(i), 2);
+		}
+		return Math.exp(-sum/c);
+	}
+	
+	public static double LinearKernel(Vector w, Vector x)
+	{
+		return Math.pow(w.transpose(x),5);
 	}
 	
 	

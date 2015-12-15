@@ -10,14 +10,14 @@ import java.util.regex.Pattern;
 
 public class Util {
 
-	
+
 	public static ArrayList<ArrayList<Vector>> createCrossValidationSet(ArrayList<Vector> data, int fold)
 	{
 		int size = data.size();
 		int bound = (int) (size/fold + Math.ceil((size%fold)/(fold*1.0)));
 		ArrayList<ArrayList<Vector>> cross = new ArrayList<ArrayList<Vector>>(fold);
 
-		
+
 		//Partiton the data for cross-validation
 		for(int i = 0; i < size;)
 		{
@@ -33,7 +33,7 @@ public class Util {
 		}
 		return cross;
 	}
-	
+
 	/**
 	 * Runs the ArrayList of test vectors against the weight vector and computes the accuracy. Label is used for multi-class classification. 
 	 * @param test
@@ -45,7 +45,7 @@ public class Util {
 	{
 		double accuracy = 0;
 		double size = 0;
-		
+
 		for(Vector x : test)
 		{
 			double y = x.getLabel(label);
@@ -53,10 +53,10 @@ public class Util {
 				accuracy++;
 			size++;
 		}
-		
+
 		return accuracy/size;
 	}
-	
+
 
 	/**
 	 * Shuffles the data set, which is an ArrayList of vectors.
@@ -75,8 +75,8 @@ public class Util {
 		}
 		return array;
 	}
-	
-	
+
+
 	/**
 	 * Winner takes all prediction for One-vs-All training.
 	 * @param classifier - The classifiers to compare to
@@ -88,7 +88,7 @@ public class Util {
 	{
 		double max = Math.log(0);
 		int argmax = 0;
-		
+
 		for(int i = 0; i < classifier.size(); i++)
 		{
 			double value = classifier.get(i).transpose(example);
@@ -98,11 +98,11 @@ public class Util {
 				argmax = i;
 			}
 		}
-		
+
 		return labels[argmax];
 	}
-	
-	
+
+
 
 	public static ArrayList<Vector> applyProductTransform(ArrayList<Vector> data)
 	{
@@ -122,36 +122,49 @@ public class Util {
 			transform[transform.length-1] = vector.getLabel();
 			transformations.add(new Vector(transform, vector.getStringLabel()));
 		}
-				
+
 		return transformations;
 	}
-	
+
 	/**
 	 * Goes through the data set and creates a test set of examples, removing each item from the data set that is added to the test set.
 	 * @param data
 	 * @return
 	 */
-	public static ArrayList<Vector> testSet(ArrayList<ArrayList<Vector>> data)
+	public static ArrayList<Vector> testSet(ArrayList<ArrayList<Vector>> data, int[] examples)
 	{
 		Random rng = new Random();
 		ArrayList<Vector> ret = new ArrayList<Vector>();
-		for(ArrayList<Vector> list : data)
+		if(examples == null)
 		{
-			for(int i = 0; i < 10; i++)
+			for(ArrayList<Vector> list : data)
 			{
-				int j = rng.nextInt(list.size());
-				Vector example = list.remove(j);
-				ret.add(example);
+				for(int i = 0; i < 10; i++)
+				{
+					int j = rng.nextInt(list.size());
+					Vector example = list.remove(j);
+					ret.add(example);
+				}
 			}
 		}
-		
+		else
+		{
+			for(ArrayList<Vector> list : data)
+			{
+				for(int i : examples)
+				{
+					Vector example = list.remove(i);
+					ret.add(example);
+				}
+			}
+		}
 		return ret;
 	}
-	
+
 	public static ArrayList<Vector> reduceSpace(ArrayList<Vector> data, ArrayList<Integer> ignore)
 	{
 		ArrayList<Vector> retData = new ArrayList<Vector>();
-		
+
 		for(Vector v : data)
 		{
 			double[] holder = new double[v.getDimension() - ignore.size()];
@@ -169,18 +182,18 @@ public class Util {
 			}
 			retData.add(new Vector(holder, v.getStringLabel()));
 		}
-		
+
 		return retData;
 	}
-	
+
 	public static ArrayList<Vector> readData(String genre, boolean simple) throws IOException
 	{
 		ArrayList<String> labels = new ArrayList<String>();
 		ArrayList<Vector> data = new ArrayList<Vector>();
-		
+
 		Pattern p = Pattern.compile("(@attribute|@relation|@data|%|^$)");
 
-		
+		//Read the arff file for a specific genre
 		BufferedReader br = new BufferedReader(new FileReader("./features/"+genre+".arff"));
 		String line = br.readLine();
 		while(line != null)
@@ -193,15 +206,17 @@ public class Util {
 				continue;
 			}
 			String[] input = split[0].split(",");
-			double[] vector = new double[input.length-1];
+			double[] vector = new double[input.length];
 			for(int i = 0; i < input.length-1; i++)
 				vector[i] = Double.parseDouble(input[i]);
+			//Adding the bias term
+			vector[input.length-1] = 1;
 			Vector v = new Vector(vector, genre);
 			data.add(v);
 			line = br.readLine();
 		}
 		br.close();	
-				
+
 		return data;
 	}
 }
