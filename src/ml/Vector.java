@@ -218,7 +218,7 @@ public class Vector {
 	 * @param position
 	 * @param value
 	 */
-	public void set(int position, int value)
+	public void set(int position, double value)
 	{
 		data[position] = value;
 	}

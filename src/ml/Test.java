@@ -19,7 +19,7 @@ public class Test {
 		Integer[] ignore = new Integer[] {6,7,8,9,10,11,12,13,14,15,16,17};
 
 
-		
+
 		ArrayList<ArrayList<Vector>> data = new ArrayList<ArrayList<Vector>>();
 
 		//Create an ArrayList of all the training data, seperated by genre. 
@@ -53,12 +53,12 @@ public class Test {
 		//ArrayList<Vector> allT = Util.applyProductTransform(all);
 		//ArrayList<Vector> testingT = Util.applyProductTransform(testing);
 
-		runSVM(genres, crossVal, reducedTraining, reducedTesting);
+		//runSVM(genres, crossVal, reducedTraining, reducedTesting);
 
 		//miniTest();
 
-
-
+		//runAdaBoost(genres, crossVal, training, testing);
+		runSVM(genres, crossVal, training, testing);
 
 	}
 
@@ -95,31 +95,43 @@ public class Test {
 			test.add(put);
 		}
 
-		HashMap<Vector, Integer> kmlabels = KMeans.trainClassifier(training, 3);
+		//HashMap<Vector, Integer> kmlabels = KMeans.trainClassifier(training, 3);
 
-		Iterator it = kmlabels.entrySet().iterator();
-		while(it.hasNext())
-		{
-			Map.Entry<Vector, Integer> pair = (Entry<Vector, Integer>)it.next();
-			Vector temp = pair.getKey();
-			System.out.println(temp + "\t" + pair.getValue());
-		}
+
+		//Iterator it = kmlabels.entrySet().iterator();
+		//		while(it.hasNext())
+		//		{
+		//			Map.Entry<Vector, Integer> pair = (Entry<Vector, Integer>)it.next();
+		//			Vector temp = pair.getKey();
+		//			System.out.println(temp + "\t" + pair.getValue());
+		//		}
 
 		ArrayList<Vector> classifiers = new ArrayList<Vector>();
+		ArrayList<Object[]> ada = new ArrayList<Object[]>();
 		String[] labels = new String[] {"A","B","C"};
 		for(String label : labels)
 		{
-
-			Vector weight = SVM.SGD(training, .01, 20, 1000, label);
-			classifiers.add(weight);
-			System.out.println(label + " " + Util.collectAccuracy(test, weight, label));
+			Object[] adaboost = AdaBoost.trainClassifier(training, label);
+			ada.add(adaboost);
+			//Vector weight = SVM.SGD(training, .01, 20, 1000, label);
+			//classifiers.add(weight);
+			//System.out.println(label + " " + Util.collectAccuracy(test, weight, label));
 		}
 
-		for(Vector example : test)
+		int counter = 0;
+		for(Object[] a : ada)
 		{
-			String label = Util.predictLabel(classifiers, labels, example);
-			System.out.println("Actual: " + example.getStringLabel() + "\tPredict: " + label);
+			System.out.println("AdaBoost: " + labels[counter++]);
+			for(Vector example : test)
+			{
+				System.out.println(example.getStringLabel() + " " + AdaBoost.predict(a, example));
+			}
+			//				String label = Util.predictLabel(ada, labels, example);
+			//				System.out.println("Actual: " + example.getStringLabel() + "\tPredict: " + label);
+			System.out.println("---------");
 		}
+
+
 
 		for(Vector v : classifiers)
 			System.out.println(v);
@@ -260,6 +272,23 @@ public class Test {
 				System.out.println(collect.get(i).get(j).getStringLabel());
 			}
 		}
+	}
+
+	private static void runAdaBoost(String[] genres, boolean crossVal, ArrayList<Vector> training, ArrayList<Vector> testing)
+	{
+		ArrayList<Object[]> classifiers = new ArrayList<Object[]>();
+		for(String label : genres)
+		{
+			classifiers.add(AdaBoost.trainClassifier(training, label));
+		}
+
+
+		for(Vector example : testing)
+		{
+			System.out.println(example.getStringLabel() + " was labeled as " + AdaBoost.predictLabel(classifiers, genres, example));
+
+		}
+
 	}
 
 }
